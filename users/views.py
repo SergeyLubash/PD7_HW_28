@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 
 from avito import settings
 from users.models import User, Location
@@ -29,7 +29,7 @@ class UserListView(ListView):
                  "first_name": user.first_name,
                  "last_name": user.last_name,
                  "role": user.role,
-                 "ads_count": user.ads.count()
+                 "ads_count": user.ads.filter(is_published=True).count(),
                  })
         return JsonResponse({'ads': result, 'page': page_obj.number, 'total': page_obj.paginator.count}, safe=False,
                             json_dumps_params={'ensure_ascii': False})
@@ -62,3 +62,35 @@ class UserCreateView(CreateView):
              'role': user.role,
              'locations': [str(u) for u in user.location.all()]}
         )
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UserDeleteView(DeleteView):
+    model = User
+    success_url = '/'
+
+    def delete(self, request, *args, **kwargs):
+        super().delete(request, *args, **kwargs)
+        return JsonResponse({}, status=204)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UserUpdateView(UpdateView):
+    model = User
+    fields = ['username']
+
+    def patch(self, request, *args, **kwargs):
+        super().post(request, *args, **kwargs)
+        data = json.loads(request.body)
+        self.object.name = data['username']
+        self.object.first_name = data['first_name']
+        self.object.last_name = data['last_name']
+        self.object.role = data['role']
+        self.object.save()
+        return JsonResponse({
+            "id": self.object.id,
+            "username": self.object.username,
+            "first_name": self.object.first_name,
+            "last_name": self.object.last_name,
+            "role": self.object.role,
+        }, safe=False, json_dumps_params={'ensure_ascii': False})

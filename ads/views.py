@@ -81,7 +81,7 @@ class CategoryDetailView(DetailView):
 
 
 class AdListView(ListView):
-    model =Ad
+    model = Ad
     queryset = Ad.objects.all()
 
     def get(self, request, *args, **kwargs):
@@ -93,16 +93,17 @@ class AdListView(ListView):
         result = []
         for ad in page_obj:
             result.append({
-                 "id": ad.id,
-                 "name": ad.name,
-                 "author": ad.author.user_name,
-                 "category": ad.category.name if ad.category else "Без категории",
-                 "price": ad.price,
-                 "description": ad.description,
-                 "is_published": ad.is_published,
-                 "image": ad.image.url
-        })
-        return JsonResponse({'ads': result, 'page': page_obj.number, 'total': page_obj.paginator.count}, safe=False, json_dumps_params={'ensure_ascii': False})
+                "id": ad.id,
+                "name": ad.name,
+                "author": ad.author.user_name,
+                "category": ad.category.name if ad.category else "Без категории",
+                "price": ad.price,
+                "description": ad.description,
+                "is_published": ad.is_published,
+                "image": ad.image.url
+            })
+        return JsonResponse({'ads': result, 'page': page_obj.number, 'total': page_obj.paginator.count}, safe=False,
+                            json_dumps_params={'ensure_ascii': False})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -167,6 +168,27 @@ class AdCreateView(CreateView):
             "price": new_ad.price,
             "description": new_ad.description,
             "is_published": new_ad.is_published
+        }, safe=False, json_dumps_params={'ensure_ascii': False})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdUpdateView(UpdateView):
+    model = Ad
+    fields = ['name']
+
+    def patch(self, request, *args, **kwargs):
+        super().post(request, *args, **kwargs)
+        data = json.loads(request.body)
+        self.object.name = data['name']
+        self.object.save()
+        return JsonResponse({
+            "id": self.object.id,
+            "name": self.object.name,
+            "author": self.object.author.username,
+            "category": self.object.category.name,
+            "price": self.object.price,
+            "description": self.object.description,
+            "is_published": self.object.is_published
         }, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
