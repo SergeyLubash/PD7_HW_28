@@ -44,7 +44,7 @@ class UserRoles:
 
 class User(AbstractUser):
     role = models.CharField(choices=UserRoles.choices, default='member', max_length=12)
-    locations = models.ManyToManyField(Location)
+    location = models.ManyToManyField(Location)
     age = models.PositiveSmallIntegerField(null=True)
 
     class Meta:
