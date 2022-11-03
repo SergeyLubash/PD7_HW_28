@@ -24,12 +24,15 @@ from users.views import LocationViewSet
 
 router = SimpleRouter()
 router.register(r'location', LocationViewSet)
+router.register('category', CategoryViewSet)
+# router.register('ad', AdViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', root),
-    path('cat/', include('ads.urls.cat_urls')),
+    # path('cat/', include('ads.urls.cat_urls')),
     path('ad/', include('ads.urls.ad_urls')),
+    path('selection/', include('ads.urls.selection_urls')),
     path('user/', include("users.urls"))
 ]
 

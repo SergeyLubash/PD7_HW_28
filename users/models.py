@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
@@ -25,13 +26,25 @@ class UserRoles:
     )
 
 
-class User(models.Model):
-    first_name = models.CharField(verbose_name='Имя',max_length=60)
-    last_name = models.CharField(verbose_name='Фамилия',max_length=80)
-    username = models.CharField(verbose_name='Логин',max_length=20, unique=True)
-    password = models.CharField(verbose_name='Пароль',max_length=30)
+# class User(models.Model):
+#     first_name = models.CharField(verbose_name='Имя',max_length=60)
+#     last_name = models.CharField(verbose_name='Фамилия',max_length=80)
+#     username = models.CharField(verbose_name='Логин',max_length=20, unique=True)
+#     password = models.CharField(verbose_name='Пароль',max_length=30)
+#     role = models.CharField(choices=UserRoles.choices, default='member', max_length=12)
+#     location = models.ManyToManyField(Location)
+#     age = models.PositiveSmallIntegerField(null=True)
+#
+#     class Meta:
+#         verbose_name = 'Пользователь'
+#         verbose_name_plural = 'Пользователи'
+#
+#     def __str__(self):
+#         return f"{self.first_name} {self.last_name}"
+
+class User(AbstractUser):
     role = models.CharField(choices=UserRoles.choices, default='member', max_length=12)
-    location = models.ManyToManyField(Location)
+    locations = models.ManyToManyField(Location)
     age = models.PositiveSmallIntegerField(null=True)
 
     class Meta:
@@ -40,4 +53,3 @@ class User(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
-
